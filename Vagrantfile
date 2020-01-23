@@ -28,16 +28,11 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
-  config.vm.network "forwarded_port", guest: 9090, host: 19090, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 587, host: 1587, protocol: "tcp"
-  config.vm.network "forwarded_port", guest: 110, host: 1110, protocol: "tcp"
-  config.vm.network "forwarded_port", guest: 143, host: 1143, protocol: "tcp"
-  config.vm.network "forwarded_port", guest: 25, host: 1025, protocol: "tcp"
-  
-  config.vm.network "forwarded_port", guest: 587, host: 1587, protocol: "submission"
-  config.vm.network "forwarded_port", guest: 110, host: 1110, protocol: "pop"
-  config.vm.network "forwarded_port", guest: 143, host: 1143, protocol: "imap"
-  config.vm.network "forwarded_port", guest: 25, host: 1025, protocol: "smtp"
+  config.vm.network "forwarded_port", guest: 9090, host: 19090, host_ip: "127.0.0.1" , protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 587, host: 1587, host_ip: "127.0.0.1" , protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 110, host: 1110, host_ip: "127.0.0.1", protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 143, host: 1143, host_ip: "127.0.0.1",   protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 25, host: 1025, host_ip: "127.0.0.1",  protocol: "tcp"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -75,20 +70,22 @@ Vagrant.configure("2") do |config|
    config.vm.provision "shell", inline: <<-SHELL
      # Installation block
      yum install -y epel-release
-     yum install -y vim cockpit bash-completion postfix dovecot telnet nc
+     yum install -y vim cockpit bash-completion postfix dovecot telnet nc cyrus-sasl
      # OS configuration block
      hostnamectl set-hostname allinone-ep
   	 # Service configuration block
      systemctl enable --now postfix 
      systemctl enable --now dovecot
      systemctl enable --now cockpit.socket
-     # User configuration block
+     systemctl enable --now saslauthd.service
+	 # User configuration block
      useradd engineer 
      usermod -p '$6$xyz$.UccqMWqX8VK4PRzmKTR1woU2y5IgDas9n.XPkhgK8M62yVqI4sLx.Yw2AC5z7t4Ke3NiU7aq7i3Su5QdrRcF1' engineer
      useradd manager
      usermod -p '$6$xyz$PcPt/h72LIQm.YoxBmDLqfpbX1w3vhcJ1LwyYjOaslRr67l0g3ZkE5nKN0c4Ed98wYTvMWvhlGcV7NZorCE2i/' manager
      useradd contractor
      usermod -p '$6$xyz$tlQI91A01E6TWfFL6jqBSSLdzLKJtFyF2aWfdTZyOBUn56UjQbMyecGla5IMGqX./neusxkBsr3IwUGZhTnel0' contractor
-     
+     #custom added options
+	 smtpd_sasl_auth_enable = yes 
    SHELL
 end
